@@ -861,6 +861,25 @@
                     <p style="margin-top: 30px; font-weight: 600; color: #667eea;">Thank you again for your time and support — your participation truly makes a difference!</p>
                     
                     <button class="btn-submit" onclick="submitForm()" style="margin-top: 30px;">Submit Survey</button>
+                
+  <div id="loading" style="display:none; margin-top:10px;">
+    <p>Submitting your response... Please wait.</p>
+    <div style="width:100%; background-color:#ddd; height:20px;">
+      <div id="progressBar"></div>
+    </div>
+  </div>
+
+  <!-- Success message -->
+  <div id="success" style="display:none; color:green; margin-top:10px;">
+    <p id="successMsg"></p>
+  </div>
+
+  <!-- Error message -->
+  <div id="error" style="display:none; color:red; margin-top:10px;">
+    <p id="errorMsg"></p>
+  </div>
+
+ 
                 </div>
             </div>
         </div>
@@ -1453,78 +1472,190 @@
             
             // Send data to Google Sheets
             const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymBrb1ISC5w-4lYKEkz38emtMDBBcT85Vo9oGKj3bKCS8ia7mDey1C4RI0-PrFpC0KGw/exec';
+
+             function submitForm() {
+            // Calculate time taken
+            const surveyEndTime = new Date();
+            const timeTakenSeconds = Math.round((surveyEndTime - surveyStartTime) / 1000);
             
+            // Format IUS responses to match Apps Script structure
+            const iusResponsesObj = {};
+            let iusTotal = 0;
+            for (let i = 0; i < iusQuestions.length; i++) {
+                const response = document.querySelector(`input[name="ius${i}"]:checked`)?.value;
+                const responseValue = parseInt(response) || 0;
+                iusResponsesObj['q' + (i + 1)] = responseValue;
+                iusTotal += responseValue;
+            }
             
-<div id="loading" style="display:none; margin-top:10px;">
-  <p>Submitting your response... Please wait.</p>
-  <div style="width:100%; background-color:#ddd; height:20px; border-radius:5px;">
-    <div id="progressBar" style="width:0%; height:100%; background-color:#4CAF50; border-radius:5px;"></div>
-  </div>
-</div>
+            // Combine Fixed Win and Decreasing Win trials into IST trials
+            const istTrials = [];
+            
+            // Add Fixed Win trials
+            fwTrialData.forEach(trial => {
+                istTrials.push({
+                    condition: trial.condition,
+                    boxesRevealed: trial.boxesRevealed,
+                    decision: trial.decision,
+                    correctAnswer: trial.correctAnswer,
+                    correct: trial.correct,
+                    pointsEarned: trial.pointsEarned
+                });
+            });
+            
+            // Add Decreasing Win trials
+            dwTrialData.forEach(trial => {
+                istTrials.push({
+                    condition: trial.condition,
+                    boxesRevealed: trial.boxesRevealed,
+                    decision: trial.decision,
+                    correctAnswer: trial.correctAnswer,
+                    correct: trial.correct,
+                    pointsEarned: trial.pointsEarned
+                });
+            });
+            
+            // Format data to match Apps Script structure
+            const formData = {
+                participantID: participantID,
+                timeTaken: timeTakenSeconds,
+                demographics: {
+                    age: document.getElementById('age').value,
+                    gender: document.querySelector('input[name="gender"]:checked')?.value,
+                    fieldOfStudy: document.getElementById('field').value,
+                    education: document.getElementById('education').value,
+                    nationality: document.querySelector('input[name="nationality"]:checked')?.value
+                },
+                iusResponses: iusResponsesObj,
+                iusTotal: iusTotal,
+                istTrials: istTrials
+            };
+            
+            console.log('Form Data:', formData);
+            
+            // Send data to Google Sheets
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymBrb1ISC5w-4lYKEkz38emtMDBBcT85Vo9oGKj3bKCS8ia7mDey1C4RI0-PrFpC0KGw/exec';
 
-<div id="success" style="display:none; color:green; margin-top:10px;">
-  <p id="successMsg"></p>
-</div>
+                 function submitForm() {
+    // Calculate time taken
+    const surveyEndTime = new Date();
+    const timeTakenSeconds = Math.round((surveyEndTime - surveyStartTime) / 1000);
 
-<div id="error" style="display:none; color:red; margin-top:10px;">
-  <p id="errorMsg"></p>
-</div>
+    // Format IUS responses
+    const iusResponsesObj = {};
+    let iusTotal = 0;
+    for (let i = 0; i < iusQuestions.length; i++) {
+        const response = document.querySelector(`input[name="ius${i}"]:checked`)?.value;
+        const responseValue = parseInt(response) || 0;
+        iusResponsesObj['q' + (i + 1)] = responseValue;
+        iusTotal += responseValue;
+    }
 
-<script>
-  // Replace your current alert + fetch code with this
-  function submitForm() {
+    // Combine IST trials
+    const istTrials = [];
+    fwTrialData.forEach(trial => {
+        istTrials.push({
+            condition: trial.condition,
+            boxesRevealed: trial.boxesRevealed,
+            decision: trial.decision,
+            correctAnswer: trial.correctAnswer,
+            correct: trial.correct,
+            pointsEarned: trial.pointsEarned
+        });
+    });
+    dwTrialData.forEach(trial => {
+        istTrials.push({
+            condition: trial.condition,
+            boxesRevealed: trial.boxesRevealed,
+            decision: trial.decision,
+            correctAnswer: trial.correctAnswer,
+            correct: trial.correct,
+            pointsEarned: trial.pointsEarned
+        });
+    });
+
+    // Format data for Apps Script
+    const formData = {
+        participantID: participantID,
+        timeTaken: timeTakenSeconds,
+        demographics: {
+            age: document.getElementById('age').value,
+            gender: document.querySelector('input[name="gender"]:checked')?.value,
+            fieldOfStudy: document.getElementById('field').value,
+            education: document.getElementById('education').value,
+            nationality: document.querySelector('input[name="nationality"]:checked')?.value
+        },
+        iusResponses: iusResponsesObj,
+        iusTotal: iusTotal,
+        istTrials: istTrials
+    };
+
+    console.log('Form Data:', formData);
+
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymBrb1ISC5w-4lYKEkz38emtMDBBcT85Vo9oGKj3bKCS8ia7mDey1C4RI0-PrFpC0KGw/exec';
+
     const progressBar = document.getElementById("progressBar");
-
-    // Show loading
     document.getElementById("loading").style.display = "block";
     document.getElementById("success").style.display = "none";
     document.getElementById("error").style.display = "none";
     progressBar.style.width = "0%";
 
-    // Simulate progress bar until fetch completes
     let progress = 0;
     const interval = setInterval(() => {
-      if (progress < 90) {
-        progress += 5;
-        progressBar.style.width = progress + "%";
-      }
+        if (progress < 90) {
+            progress += 5;
+            progressBar.style.width = progress + "%";
+        }
     }, 50);
 
+    const submitButton = document.querySelector('#istForm button[type="submit"]');
+    submitButton.disabled = true; // prevent double submit
+
     fetch(SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
     })
     .then(response => response.json())
     .then(result => {
-      clearInterval(interval);
-      progressBar.style.width = "100%";
-      document.getElementById("loading").style.display = "none";
+        clearInterval(interval);
+        progressBar.style.width = "100%";
+        document.getElementById("loading").style.display = "none";
 
-      if (result.status === "success") {
-        document.getElementById("success").style.display = "block";
-        const minutes = Math.floor(timeTakenSeconds / 60);
-        const seconds = timeTakenSeconds % 60;
-        document.getElementById("successMsg").textContent =
-          `Thank you! Your responses have been recorded.
+        if (result.status === "success") {
+            document.getElementById("success").style.display = "block";
+            const minutes = Math.floor(timeTakenSeconds / 60);
+            const seconds = timeTakenSeconds % 60;
+            document.getElementById("successMsg").textContent =
+                `Thank you! Your responses have been recorded.
 Participant ID: ${participantID}
 Time taken: ${minutes} minutes ${seconds} seconds`;
-      } else {
-        document.getElementById("error").style.display = "block";
-        document.getElementById("errorMsg").textContent = `Server error: ${result.message}`;
-      }
+            // Optional: reset form
+            // document.getElementById("istForm").reset();
+        } else {
+            document.getElementById("error").style.display = "block";
+            document.getElementById("errorMsg").textContent = `Server error: ${result.message}`;
+        }
     })
     .catch(error => {
-      clearInterval(interval);
-      progressBar.style.width = "0%";
-      document.getElementById("loading").style.display = "none";
-      document.getElementById("error").style.display = "block";
-      document.getElementById("errorMsg").textContent =
-        `There was an issue submitting your data. Please contact the researcher.
+        clearInterval(interval);
+        progressBar.style.width = "0%";
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("error").style.display = "block";
+        document.getElementById("errorMsg").textContent =
+            `There was an issue submitting your data. Please contact the researcher.
 Participant ID: ${participantID}`;
-      console.error('Error sending data:', error);
+        console.error('Error sending data:', error);
+    })
+    .finally(() => {
+        submitButton.disabled = false;
     });
-  }
-</script>
+}
+
+
+            
+            
+                 </script>
+
 </body>
 </html>
