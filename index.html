@@ -485,6 +485,54 @@
         .required {
             color: #dc3545;
         }
+
+{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(5px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loader-box {
+    width: 300px;
+    text-align: center;
+}
+
+.loader-text {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #333;
+    font-weight: 600;
+}
+
+.loader-bar {
+    width: 100%;
+    height: 10px;
+    background: #e0e0e0;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.loader-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg,#667eea,#764ba2);
+    animation: loadingAnim 2s infinite;
+}
+
+@keyframes loadingAnim {
+    0% { width: 0%; }
+    50% { width: 80%; }
+    100% { width: 0%; }
+}
+
     </style>
 </head>
 <body>
@@ -568,10 +616,11 @@
                     <h3>Contact Information</h3>
                     <p><strong>Researcher's Supervisor:</strong><br>
                     Ms. Khor Khai Ling<br>
-                    📧 <a href="/cdn-cgi/l/email-protection#c0aba8a1a9aca9aea7eeab80a8a5acb0eea5a4b5eeadb9" style="color: #667eea; text-decoration: underline;">khailing.k@help.edu.my</a></p>
+                    📧 Email: <a href="khailing.k@help.edu.my" style="color: #856404; text-decoration: underline;">khailing.k@help.edu.my</a></p>
+
                     <p style="margin-top: 10px;"><strong>Researcher:</strong><br>
                     Pang Jia Hui<br>
-                    📧 <a href="/cdn-cgi/l/email-protection#165424252626242427567e737a667a7f607338737263387b6f" style="color: #667eea; text-decoration: underline;">B2300221@helplive.edu.my</a></p>
+                    📧 Email: <a href="B2300221@helplive.edu.my" style="color: #856404; text-decoration: underline;">B2300221@helplive.edu.my</a></p>
                 </div>
 
                 <div class="form-group" style="margin-top: 30px;">
@@ -861,25 +910,6 @@
                     <p style="margin-top: 30px; font-weight: 600; color: #667eea;">Thank you again for your time and support — your participation truly makes a difference!</p>
                     
                     <button class="btn-submit" onclick="submitForm()" style="margin-top: 30px;">Submit Survey</button>
-                
-  <div id="loading" style="display:none; margin-top:10px;">
-    <p>Submitting your response... Please wait.</p>
-    <div style="width:100%; background-color:#ddd; height:20px;">
-      <div id="progressBar"></div>
-    </div>
-  </div>
-
-  <!-- Success message -->
-  <div id="success" style="display:none; color:green; margin-top:10px;">
-    <p id="successMsg"></p>
-  </div>
-
-  <!-- Error message -->
-  <div id="error" style="display:none; color:red; margin-top:10px;">
-    <p id="errorMsg"></p>
-  </div>
-
- 
                 </div>
             </div>
         </div>
@@ -1472,190 +1502,39 @@
             
             // Send data to Google Sheets
             const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymBrb1ISC5w-4lYKEkz38emtMDBBcT85Vo9oGKj3bKCS8ia7mDey1C4RI0-PrFpC0KGw/exec';
-
-             function submitForm() {
-            // Calculate time taken
-            const surveyEndTime = new Date();
-            const timeTakenSeconds = Math.round((surveyEndTime - surveyStartTime) / 1000);
             
-            // Format IUS responses to match Apps Script structure
-            const iusResponsesObj = {};
-            let iusTotal = 0;
-            for (let i = 0; i < iusQuestions.length; i++) {
-                const response = document.querySelector(`input[name="ius${i}"]:checked`)?.value;
-                const responseValue = parseInt(response) || 0;
-                iusResponsesObj['q' + (i + 1)] = responseValue;
-                iusTotal += responseValue;
-            }
+           document.getElementById('loadingOverlay').style.display = 'flex';
             
-            // Combine Fixed Win and Decreasing Win trials into IST trials
-            const istTrials = [];
-            
-            // Add Fixed Win trials
-            fwTrialData.forEach(trial => {
-                istTrials.push({
-                    condition: trial.condition,
-                    boxesRevealed: trial.boxesRevealed,
-                    decision: trial.decision,
-                    correctAnswer: trial.correctAnswer,
-                    correct: trial.correct,
-                    pointsEarned: trial.pointsEarned
-                });
-            });
-            
-            // Add Decreasing Win trials
-            dwTrialData.forEach(trial => {
-                istTrials.push({
-                    condition: trial.condition,
-                    boxesRevealed: trial.boxesRevealed,
-                    decision: trial.decision,
-                    correctAnswer: trial.correctAnswer,
-                    correct: trial.correct,
-                    pointsEarned: trial.pointsEarned
-                });
-            });
-            
-            // Format data to match Apps Script structure
-            const formData = {
-                participantID: participantID,
-                timeTaken: timeTakenSeconds,
-                demographics: {
-                    age: document.getElementById('age').value,
-                    gender: document.querySelector('input[name="gender"]:checked')?.value,
-                    fieldOfStudy: document.getElementById('field').value,
-                    education: document.getElementById('education').value,
-                    nationality: document.querySelector('input[name="nationality"]:checked')?.value
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
-                iusResponses: iusResponsesObj,
-                iusTotal: iusTotal,
-                istTrials: istTrials
-            };
-            
-            console.log('Form Data:', formData);
-            
-            // Send data to Google Sheets
-            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymBrb1ISC5w-4lYKEkz38emtMDBBcT85Vo9oGKj3bKCS8ia7mDey1C4RI0-PrFpC0KGw/exec';
+                body: JSON.stringify(formData)
+            })
+            .then(response => { 
+    document.getElementById('loadingOverlay').style.display = 'none';
+    alert('Thank you for completing the survey!');
+})
+            .catch(error => {
+    document.getElementById('loadingOverlay').style.display = 'none';
+    alert('There was an issue submitting your data. Please contact the researcher- B2300221@helplive.edu.my');
+});
 
-                 function submitForm() {
-    // Calculate time taken
-    const surveyEndTime = new Date();
-    const timeTakenSeconds = Math.round((surveyEndTime - surveyStartTime) / 1000);
-
-    // Format IUS responses
-    const iusResponsesObj = {};
-    let iusTotal = 0;
-    for (let i = 0; i < iusQuestions.length; i++) {
-        const response = document.querySelector(`input[name="ius${i}"]:checked`)?.value;
-        const responseValue = parseInt(response) || 0;
-        iusResponsesObj['q' + (i + 1)] = responseValue;
-        iusTotal += responseValue;
-    }
-
-    // Combine IST trials
-    const istTrials = [];
-    fwTrialData.forEach(trial => {
-        istTrials.push({
-            condition: trial.condition,
-            boxesRevealed: trial.boxesRevealed,
-            decision: trial.decision,
-            correctAnswer: trial.correctAnswer,
-            correct: trial.correct,
-            pointsEarned: trial.pointsEarned
-        });
-    });
-    dwTrialData.forEach(trial => {
-        istTrials.push({
-            condition: trial.condition,
-            boxesRevealed: trial.boxesRevealed,
-            decision: trial.decision,
-            correctAnswer: trial.correctAnswer,
-            correct: trial.correct,
-            pointsEarned: trial.pointsEarned
-        });
-    });
-
-    // Format data for Apps Script
-    const formData = {
-        participantID: participantID,
-        timeTaken: timeTakenSeconds,
-        demographics: {
-            age: document.getElementById('age').value,
-            gender: document.querySelector('input[name="gender"]:checked')?.value,
-            fieldOfStudy: document.getElementById('field').value,
-            education: document.getElementById('education').value,
-            nationality: document.querySelector('input[name="nationality"]:checked')?.value
-        },
-        iusResponses: iusResponsesObj,
-        iusTotal: iusTotal,
-        istTrials: istTrials
-    };
-
-    console.log('Form Data:', formData);
-
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymBrb1ISC5w-4lYKEkz38emtMDBBcT85Vo9oGKj3bKCS8ia7mDey1C4RI0-PrFpC0KGw/exec';
-
-    const progressBar = document.getElementById("progressBar");
-    document.getElementById("loading").style.display = "block";
-    document.getElementById("success").style.display = "none";
-    document.getElementById("error").style.display = "none";
-    progressBar.style.width = "0%";
-
-    let progress = 0;
-    const interval = setInterval(() => {
-        if (progress < 90) {
-            progress += 5;
-            progressBar.style.width = progress + "%";
         }
-    }, 50);
+    </script>
 
-    const submitButton = document.querySelector('#istForm button[type="submit"]');
-    submitButton.disabled = true; // prevent double submit
-
-    fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(result => {
-        clearInterval(interval);
-        progressBar.style.width = "100%";
-        document.getElementById("loading").style.display = "none";
-
-        if (result.status === "success") {
-            document.getElementById("success").style.display = "block";
-            const minutes = Math.floor(timeTakenSeconds / 60);
-            const seconds = timeTakenSeconds % 60;
-            document.getElementById("successMsg").textContent =
-                `Thank you! Your responses have been recorded.
-Participant ID: ${participantID}
-Time taken: ${minutes} minutes ${seconds} seconds`;
-            // Optional: reset form
-            // document.getElementById("istForm").reset();
-        } else {
-            document.getElementById("error").style.display = "block";
-            document.getElementById("errorMsg").textContent = `Server error: ${result.message}`;
-        }
-    })
-    .catch(error => {
-        clearInterval(interval);
-        progressBar.style.width = "0%";
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("error").style.display = "block";
-        document.getElementById("errorMsg").textContent =
-            `There was an issue submitting your data. Please contact the researcher.
-Participant ID: ${participantID}`;
-        console.error('Error sending data:', error);
-    })
-    .finally(() => {
-        submitButton.disabled = false;
-    });
-}
-
-
-            
-            
-                 </script>
+    <!-- Submission Loading Overlay -->
+    <div id="loadingOverlay">
+        <div class="loader-box">
+            <div class="loader-text">Submitting your responses…</div>
+            <div class="loader-bar">
+                <div class="loader-fill"></div>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
+
