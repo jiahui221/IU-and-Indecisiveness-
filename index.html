@@ -730,6 +730,36 @@
                     <div class="error" id="nationality-error">Please select your nationality</div>
                 </div>
 
+                 <div class="form-group">
+                    <label>Do you have normal colour vision (with or without correction)? <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <div class="radio-option" onclick="selectOption('colorvision', 'yes')">
+                            <input type="radio" id="colorvision-yes" name="colorvision" value="yes" required>
+                            <label for="colorvision-yes">Yes</label>
+                        </div>
+                        <div class="radio-option" onclick="selectOption('colorvision', 'no')">
+                            <input type="radio" id="colorvision-no" name="colorvision" value="no">
+                            <label for="colorvision-no">No</label>
+                        </div>
+                    </div>
+                    <div class="error" id="colorvision-error">Please select an option</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Have you ever been diagnosed with an anxiety disorder or obsessive–compulsive disorder (OCD)? <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <div class="radio-option" onclick="selectOption('anxietyocd', 'yes')">
+                            <input type="radio" id="anxietyocd-yes" name="anxietyocd" value="yes" required>
+                            <label for="anxietyocd-yes">Yes</label>
+                        </div>
+                        <div class="radio-option" onclick="selectOption('anxietyocd', 'no')">
+                            <input type="radio" id="anxietyocd-no" name="anxietyocd" value="no">
+                            <label for="anxietyocd-no">No</label>
+                        </div>
+                    </div>
+                    <div class="error" id="anxietyocd-error">Please select an option</div>
+                </div>
+                
                 <div class="buttons">
                     <button class="btn-secondary" onclick="previousSection(2)">← Back</button>
                     <button class="btn-primary" onclick="nextSection(2)">Continue →</button>
