@@ -1532,25 +1532,27 @@
             });
             
             // Format data to match Apps Script structure
-            const formData = {
-                participantID: participantID,
-                timeTaken: timeTakenSeconds,
-                demographics: {
-                    age: document.getElementById('age').value,
-                    gender: document.querySelector('input[name="gender"]:checked')?.value,
-                    fieldOfStudy: document.getElementById('field').value,
-                    education: document.getElementById('education').value,
-                    nationality: document.querySelector('input[name="nationality"]:checked')?.value
-                },
-                iusResponses: iusResponsesObj,
-                iusTotal: iusTotal,
-                istTrials: istTrials
-            };
+const formData = {
+    participantID: participantID,
+    timeTaken: timeTakenSeconds,
+    demographics: {
+        age: document.getElementById('age').value,
+        gender: document.querySelector('input[name="gender"]:checked')?.value,
+        fieldOfStudy: document.getElementById('field').value,
+        education: document.getElementById('education').value,
+        nationality: document.querySelector('input[name="nationality"]:checked')?.value,
+        colorVision: document.querySelector('input[name="colorvision"]:checked')?.value,  // NEW
+        anxietyOCD: document.querySelector('input[name="anxietyocd"]:checked')?.value     // NEW
+    },
+    iusResponses: iusResponsesObj,
+    iusTotal: iusTotal,
+    istTrials: istTrials
+};
             
             console.log('Form Data:', formData);
             
             // Send data to Google Sheets
-            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymBrb1ISC5w-4lYKEkz38emtMDBBcT85Vo9oGKj3bKCS8ia7mDey1C4RI0-PrFpC0KGw/exec';
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytlFBa0Pqp4wMoSrPdPVw51osr7EiVzHBbA-VAex-6_hIZelFEZ1X0qOFCRUjIvERM7A/exec';
             
            document.getElementById('loadingOverlay').style.display = 'flex';
             
