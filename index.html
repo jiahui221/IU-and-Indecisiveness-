@@ -1395,6 +1395,8 @@
                 const field = document.getElementById('field').value;
                 const education = document.getElementById('education').value;
                 const nationality = document.querySelector('input[name="nationality"]:checked');
+                const colorvision = document.querySelector('input[name="colorvision"]:checked');
+                const anxietyocd = document.querySelector('input[name="anxietyocd"]:checked');
 
                 if (!age || age < 18 || age > 25) {
                     document.getElementById('age-error').style.display = 'block';
@@ -1430,6 +1432,22 @@
                 } else {
                     document.getElementById('nationality-error').style.display = 'none';
                 }
+                // Validate colour vision
+if (!colorvision) {
+    document.getElementById('colorvision-error').style.display = 'block';
+    if (!firstError) firstError = document.getElementById('colorvision-error');
+    isValid = false;
+} else {
+    document.getElementById('colorvision-error').style.display = 'none';
+}
+                // Validate anxiety/OCD question
+if (!anxietyocd) {
+    document.getElementById('anxietyocd-error').style.display = 'block';
+    if (!firstError) firstError = document.getElementById('anxietyocd-error');
+    isValid = false;
+} else {
+    document.getElementById('anxietyocd-error').style.display = 'none';
+}
             }
 
             if (section === 3) {
